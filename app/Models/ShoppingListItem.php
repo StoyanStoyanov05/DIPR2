@@ -10,11 +10,11 @@ class ShoppingListItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shopping_list_id',  
-        'ingredient_id',     
-        'quantity',          
-        'unit',              
-        'is_purchased',      
+        'shopping_list_id',
+        'ingredient_id',
+        'quantity',
+        'unit',
+        'is_purchased',
     ];
 
     public function shoppingList()

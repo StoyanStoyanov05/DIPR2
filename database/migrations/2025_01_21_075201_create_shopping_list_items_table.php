@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('shopping_list_items', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id(); 
+            $table->foreignId('shopping_list_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('ingredient_id')->constrained()->onDelete('cascade'); 
+            $table->float('quantity'); 
+            $table->enum('unit', ['grams', 'milliliters', 'pieces']); 
+            $table->boolean('is_purchased')->default(false); 
+            $table->timestamps(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('shopping_list_items');
