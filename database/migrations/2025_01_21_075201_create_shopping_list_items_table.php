@@ -16,6 +16,10 @@ return new class extends Migration
             $table->enum('unit', ['grams', 'milliliters', 'pieces']); 
             $table->boolean('is_purchased')->default(false); 
             $table->timestamps(); 
+            $table->string('name')->unique();
+            $table->text('description')->nullable();
+            $table->boolean('is_allergen')->default(false);
+            $table->string('category')->nullable(); 
         });
     }
 
