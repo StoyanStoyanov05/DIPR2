@@ -21,7 +21,7 @@ class ShoppingList extends Model
 
     public function shoppingListItems()
     {
-        return $this->hasMany(ShoppingListItem::class, 'shopping_list_id');
+        return $this->hasMany(ShoppingListItem::class);
     }
 
     public function unpurchasedItems()
@@ -41,13 +41,23 @@ class ShoppingList extends Model
 
     public function isCompleted()
     {
-        return !$this->shoppingListItems()->where('is_purchased', false)->exists();
+        return !$this->unpurchasedItems()->exists();
     }
 
     public function markAllAsPurchased()
     {
-        return $this->shoppingListItems()->update(['is_purchased' => true]);
+        return $this->unpurchasedItems()->update(['is_purchased' => true]);
     }
 
+    public function hasUnpurchasedItems()
+    {
+        return $this->unpurchasedItems()->exists();
+    }
 
+    public function deleteIfEmpty()
+    {
+        if (!$this->shoppingListItems()->exists()) {
+            $this->delete();
+        }
+    }
 }

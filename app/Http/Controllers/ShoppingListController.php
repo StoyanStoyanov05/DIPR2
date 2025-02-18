@@ -3,20 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShoppingList;
-use Barryvdh\DomPDF\Facade as PDF;
+use App\Http\Resources\ShoppingListResource;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class ShoppingListController extends Controller
 {
     public function index()
     {
-        return ShoppingList::with('shoppingListItems.ingredient')->get();
+        return ShoppingListResource::collection(
+            ShoppingList::with('shoppingListItems.ingredient')->paginate(10)
+        );
     }
 
-    public function show($id)
+    public function show(ShoppingList $shoppingList)
     {
-        $shoppingList = ShoppingList::with('shoppingListItems.ingredient')->findOrFail($id);
-        return response()->json($shoppingList);
+        if ($shoppingList->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return new ShoppingListResource($shoppingList);
     }
 
     public function store(Request $request)
@@ -27,26 +34,22 @@ class ShoppingListController extends Controller
         ]);
 
         $shoppingList = ShoppingList::create($validated);
-        return response()->json($shoppingList, 201);
+        return new ShoppingListResource($shoppingList);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, ShoppingList $shoppingList)
     {
-        $shoppingList = ShoppingList::findOrFail($id);
-
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
         ]);
 
         $shoppingList->update($validated);
-        return response()->json($shoppingList);
+        return new ShoppingListResource($shoppingList);
     }
 
-    public function destroy($id)
+    public function destroy(ShoppingList $shoppingList)
     {
-        $shoppingList = ShoppingList::findOrFail($id);
         $shoppingList->delete();
-
         return response()->json(null, 204);
     }
 
@@ -54,8 +57,7 @@ class ShoppingListController extends Controller
     {
         $shoppingList = ShoppingList::with('shoppingListItems.ingredient')->findOrFail($id);
 
-        $pdf = PDF::loadView('pdf.shopping_list', compact('shoppingList'));
-
+        $pdf = Pdf::loadView('pdf.shopping_list', compact('shoppingList'));
         return $pdf->download("shopping_list_{$shoppingList->id}.pdf");
     }
 }

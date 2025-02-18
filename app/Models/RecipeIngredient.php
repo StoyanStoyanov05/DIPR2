@@ -16,6 +16,10 @@ class RecipeIngredient extends Model
         'unit',           
     ];
 
+    protected $casts = [
+        'quantity' => 'float',
+    ];
+
     public function recipe()
     {
         return $this->belongsTo(Recipe::class);
@@ -24,5 +28,15 @@ class RecipeIngredient extends Model
     public function ingredient()
     {
         return $this->belongsTo(Ingredient::class);
+    }
+
+    public function scopeByRecipe($query, $recipeId)
+    {
+        return $query->where('recipe_id', $recipeId);
+    }
+
+    public function scopeByIngredient($query, $ingredientId)
+    {
+        return $query->where('ingredient_id', $ingredientId);
     }
 }
